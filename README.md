@@ -72,7 +72,10 @@ We welcome contributions to enhance the **Fabric Network Voting System**! To con
  Open a Pull Request.  
 
  ## 📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
+
 
 ---
 With this project, we aim to demonstrate the potential of blockchain technology in enhancing the electoral process by making it more secure, transparent, and accessible. 🚀
