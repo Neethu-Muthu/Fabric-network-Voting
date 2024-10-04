@@ -1,0 +1,162 @@
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/example.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+    OrdererEndpoints:
+      - orderer.example.com:7050
+
+  - &voters
+    Name: votersMSP
+    ID: votersMSP
+    MSPDir: ../organizations/peerOrganizations/voters.example.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('votersMSP.admin', 'votersMSP.peer', 'votersMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('votersMSP.admin', 'votersMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('votersMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('votersMSP.peer')"
+
+  - &commissioner
+    Name: commissionerMSP
+    ID: commissionerMSP
+    MSPDir: ../organizations/peerOrganizations/commissioner.example.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('commissionerMSP.admin', 'commissionerMSP.peer', 'commissionerMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('commissionerMSP.admin', 'commissionerMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('commissionerMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('commissionerMSP.peer')"
+
+  - &auditor
+    Name: auditorMSP
+    ID: auditorMSP
+    MSPDir: ../organizations/peerOrganizations/auditor.example.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('auditorMSP.admin', 'auditorMSP.peer', 'auditorMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('auditorMSP.admin', 'auditorMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('auditorMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('auditorMSP.peer')"
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+
+  Orderer: &OrdererCapabilities
+    V2_0: true
+
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations: []
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  Addresses:
+    - orderer.example.com:7050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations: []
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  ChannelUsingRaft:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      OrdererType: etcdraft
+      EtcdRaft:
+        Consenters:
+          - Host: orderer.example.com
+            Port: 7050
+            ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+            ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *voters
+        - *commissioner
+        - *auditor
+      Capabilities: *ApplicationCapabilities
