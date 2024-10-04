@@ -71,6 +71,8 @@ We welcome contributions to enhance the **Fabric Network Voting System**! To con
    git push origin feature/YourFeature
  Open a Pull Request.  
 
- 📜 License
+ ## 📜 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
 With this project, we aim to demonstrate the potential of blockchain technology in enhancing the electoral process by making it more secure, transparent, and accessible. 🚀
