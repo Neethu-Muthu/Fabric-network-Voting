@@ -1,10 +1,11 @@
-version: "3.7"
+version: '3.7'
 
 networks:
   test:
     name: fabric_test
 
 services:
+
   ca_voters:
     image: hyperledger/fabric-ca:latest
     labels:
@@ -33,18 +34,18 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-commissioner
       - FABRIC_CA_SERVER_TLS_ENABLED=true
-      - FABRIC_CA_SERVER_PORT=8054
-      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:18054
+      - FABRIC_CA_SERVER_PORT=10054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:12054
     ports:
-      - "8054:8054"
-      - "18054:18054"
+      - "10054:10054"
+      - "12054:12054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/commissioner:/etc/hyperledger/fabric-ca-server
     container_name: ca_commissioner
     networks:
       - test
-
+      
   ca_auditor:
     image: hyperledger/fabric-ca:latest
     labels:
@@ -53,15 +54,35 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-auditor
       - FABRIC_CA_SERVER_TLS_ENABLED=true
-      - FABRIC_CA_SERVER_PORT=6054
-      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:16054
+      - FABRIC_CA_SERVER_PORT=8054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:18054
     ports:
-      - "6054:6054"
-      - "16054:16054"
+      - "8054:8054"
+      - "18054:18054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/auditor:/etc/hyperledger/fabric-ca-server
     container_name: ca_auditor
+    networks:
+      - test
+
+  ca_candidate:
+    image: hyperledger/fabric-ca:latest
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-candidate
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=11054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:11055
+    ports:
+      - "11054:11054"
+      - "11055:11055"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ../organizations/fabric-ca/candidate:/etc/hyperledger/fabric-ca-server
+    container_name: ca_candidate
     networks:
       - test
 

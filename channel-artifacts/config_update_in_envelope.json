@@ -2,19 +2,19 @@
   "payload": {
     "header": {
       "channel_header": {
-        "channel_id": "mychannel",
+        "channel_id": "votingchannel",
         "type": 2
       }
     },
     "data": {
       "config_update": {
-        "channel_id": "mychannel",
+        "channel_id": "votingchannel",
         "isolated_data": {},
         "read_set": {
           "groups": {
             "Application": {
               "groups": {
-                "auditorMSP": {
+                "candidateMSP": {
                   "groups": {},
                   "mod_policy": "",
                   "policies": {
@@ -64,7 +64,7 @@
           "groups": {
             "Application": {
               "groups": {
-                "auditorMSP": {
+                "candidateMSP": {
                   "groups": {},
                   "mod_policy": "Admins",
                   "policies": {
@@ -95,8 +95,8 @@
                       "value": {
                         "anchor_peers": [
                           {
-                            "host": "peer0.auditor.example.com",
-                            "port": 9051
+                            "host": "peer0.candidate.voting.com",
+                            "port": 11051
                           }
                         ]
                       },

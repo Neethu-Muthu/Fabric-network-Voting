@@ -2,7 +2,7 @@ Organizations:
   - &OrdererOrg
     Name: OrdererOrg
     ID: OrdererMSP
-    MSPDir: ../organizations/ordererOrganizations/example.com/msp
+    MSPDir: ../organizations/ordererOrganizations/voting.com/msp
     Policies:
       Readers:
         Type: Signature
@@ -14,12 +14,11 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.example.com:7050
-
+      - orderer.voting.com:7050
   - &voters
     Name: votersMSP
     ID: votersMSP
-    MSPDir: ../organizations/peerOrganizations/voters.example.com/msp
+    MSPDir: ../organizations/peerOrganizations/voters.voting.com/msp
     Policies:
       Readers:
         Type: Signature
@@ -33,11 +32,10 @@ Organizations:
       Endorsement:
         Type: Signature
         Rule: "OR('votersMSP.peer')"
-
   - &commissioner
     Name: commissionerMSP
     ID: commissionerMSP
-    MSPDir: ../organizations/peerOrganizations/commissioner.example.com/msp
+    MSPDir: ../organizations/peerOrganizations/commissioner.voting.com/msp
     Policies:
       Readers:
         Type: Signature
@@ -51,11 +49,10 @@ Organizations:
       Endorsement:
         Type: Signature
         Rule: "OR('commissionerMSP.peer')"
-
   - &auditor
     Name: auditorMSP
     ID: auditorMSP
-    MSPDir: ../organizations/peerOrganizations/auditor.example.com/msp
+    MSPDir: ../organizations/peerOrganizations/auditor.voting.com/msp
     Policies:
       Readers:
         Type: Signature
@@ -69,19 +66,34 @@ Organizations:
       Endorsement:
         Type: Signature
         Rule: "OR('auditorMSP.peer')"
+  - &candidate
+    Name: candidateMSP
+    ID: candidateMSP
+    MSPDir: ../organizations/peerOrganizations/candidate.voting.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('candidateMSP.admin', 'candidateMSP.peer', 'candidateMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('candidateMSP.admin', 'candidateMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('candidateMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('candidateMSP.peer')"
 
 Capabilities:
   Channel: &ChannelCapabilities
     V2_0: true
-
   Orderer: &OrdererCapabilities
     V2_0: true
-
   Application: &ApplicationCapabilities
     V2_5: true
 
 Application: &ApplicationDefaults
-  Organizations: []
+  Organizations:
   Policies:
     Readers:
       Type: ImplicitMeta
@@ -103,13 +115,13 @@ Application: &ApplicationDefaults
 
 Orderer: &OrdererDefaults
   Addresses:
-    - orderer.example.com:7050
+    - orderer.voting.com:7050
   BatchTimeout: 2s
   BatchSize:
     MaxMessageCount: 10
     AbsoluteMaxBytes: 99 MB
     PreferredMaxBytes: 512 KB
-  Organizations: []
+  Organizations:
   Policies:
     Readers:
       Type: ImplicitMeta
@@ -146,10 +158,10 @@ Profiles:
       OrdererType: etcdraft
       EtcdRaft:
         Consenters:
-          - Host: orderer.example.com
+          - Host: orderer.voting.com
             Port: 7050
-            ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-            ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+            ClientTLSCert: ../organizations/ordererOrganizations/voting.com/orderers/orderer.voting.com/tls/server.crt
+            ServerTLSCert: ../organizations/ordererOrganizations/voting.com/orderers/orderer.voting.com/tls/server.crt
       Organizations:
         - *OrdererOrg
       Capabilities: *OrdererCapabilities
@@ -159,4 +171,5 @@ Profiles:
         - *voters
         - *commissioner
         - *auditor
+        - *candidate
       Capabilities: *ApplicationCapabilities
