@@ -199,6 +199,10 @@ peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c 
 sleep 2
 
 echo "—---------------Join auditor peer1 to the channel—-------------"
+export CORE_PEER_LOCALMSPID=auditorMSP 
+export CORE_PEER_ADDRESS=localhost:9053 
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/auditor.voting.com/peers/peer1.auditor.voting.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/auditor.voting.com/users/Admin@auditor.voting.com/msp
 
 echo ${FABRIC_CFG_PATH}
 sleep 2

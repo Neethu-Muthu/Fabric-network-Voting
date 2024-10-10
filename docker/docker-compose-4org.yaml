@@ -268,8 +268,8 @@ services:
       - CORE_PEER_ID=peer1.auditor.voting.com
       - CORE_PEER_ADDRESS=peer1.auditor.voting.com:9053
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9053
-      - CORE_PEER_CHAINCODEADDRESS=peer1.auditor.voting.com:9054
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9054
+      - CORE_PEER_CHAINCODEADDRESS=peer1.auditor.voting.com:9056
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9056
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.auditor.voting.com:9053
       - CORE_PEER_LOCALMSPID=auditorMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp

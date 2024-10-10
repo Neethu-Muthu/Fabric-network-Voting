@@ -218,7 +218,7 @@ function createauditor() {
 
   echo "Registering peer1"
   set -x
-  fabric-ca-client register --caname ca-auditor --id.name peer1 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/auditor/ca-cert.pem"
+  fabric-ca-client register --caname ca-auditor --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/auditor/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   echo "Registering user"
