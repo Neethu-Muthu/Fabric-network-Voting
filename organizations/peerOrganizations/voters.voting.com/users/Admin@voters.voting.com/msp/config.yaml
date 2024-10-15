@@ -1,14 +1,14 @@
 NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-voters.pem
+    Certificate: cacerts/localhost-8054-ca-voters.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-voters.pem
+    Certificate: cacerts/localhost-8054-ca-voters.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-voters.pem
+    Certificate: cacerts/localhost-8054-ca-voters.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-7054-ca-voters.pem
+    Certificate: cacerts/localhost-8054-ca-voters.pem
     OrganizationalUnitIdentifier: orderer

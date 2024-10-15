@@ -14,7 +14,7 @@
           "groups": {
             "Application": {
               "groups": {
-                "candidateMSP": {
+                "auditorMSP": {
                   "groups": {},
                   "mod_policy": "",
                   "policies": {
@@ -64,7 +64,7 @@
           "groups": {
             "Application": {
               "groups": {
-                "candidateMSP": {
+                "auditorMSP": {
                   "groups": {},
                   "mod_policy": "Admins",
                   "policies": {
@@ -95,7 +95,7 @@
                       "value": {
                         "anchor_peers": [
                           {
-                            "host": "peer0.candidate.voting.com",
+                            "host": "peer0.auditor.voting.com",
                             "port": 11051
                           }
                         ]
