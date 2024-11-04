@@ -41,8 +41,8 @@ sleep 2
 
 export FABRIC_CFG_PATH=${PWD}/peercfg
 export commissioner_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/commissioner.voting.com/peers/peer0.commissioner.voting.com/tls/ca.crt
-export candidate_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/candidate.voting.com/peers/peer0.candidate.voting.com/tls/ca.crt
-export voters_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/voters.voting.com/peers/peer0.voters.voting.com/tls/ca.crt
+export voterRegistrationAuthority_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/voterRegistrationAuthority.voting.com/peers/peer0.voterRegistrationAuthority.voting.com/tls/ca.crt
+export votingBooth_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/votingBooth.voting.com/peers/peer0.votingBooth.voting.com/tls/ca.crt
 export auditor_PEER_TLSROOTCERT=${PWD}/organizations/peerOrganizations/auditor.voting.com/peers/peer0.auditor.voting.com/tls/ca.crt
 
 
@@ -91,43 +91,46 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.voting.com --tls --cafile $ORDERER_CA
 sleep 1
 
-# echo "—---------------package chaincode—-------------"
+echo "—---------------package chaincode—-------------"
 
 
-# cp -r ../fabric-samples/asset-transfer-basic/chaincode-javascript ../Chaincode
-
-# peer lifecycle chaincode package basic.tar.gz --path ../Chaincode/chaincode-javascript/ --lang node --label basic_1.0
 
 
-# sleep 1
+peer lifecycle chaincode package vote-contract.tar.gz --path ${PWD}/../Chaincode/Vote-Contract  --lang node --label basic_1.0
 
-# export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid basic.tar.gz)
 
-# echo "—---------------install chaincode in commissioner peer—-------------"
-
-# peer lifecycle chaincode install basic.tar.gz
-# sleep 3
-
-# peer lifecycle chaincode queryinstalled
-
-# echo "—---------------Approve chaincode in commissioner peer—-------------"
-
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 1
 
-export CORE_PEER_LOCALMSPID=candidateMSP
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid vote-contract.tar.gz)
+
+echo "—---------------install chaincode in commissioner peer—-------------"
+
+peer lifecycle chaincode install vote-contract.tar.gz
+sleep 3
+
+peer lifecycle chaincode queryinstalled
+
+echo "—---------------Approve chaincode in commissioner peer—-------------"
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name vote-contract --version 1.0 --collections-config ../Chaincode/Vote-Contract/collection-voting.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
+
+export CORE_PEER_LOCALMSPID=voterRegistrationAuthorityMSP
 export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/candidate.voting.com/peers/peer0.candidate.voting.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/candidate.voting.com/users/Admin@candidate.voting.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/voterRegistrationAuthority.voting.com/peers/peer0.voterRegistrationAuthority.voting.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/voterRegistrationAuthority.voting.com/users/Admin@voterRegistrationAuthority.voting.com/msp
 export CORE_PEER_ADDRESS=localhost:8051
 
-echo "—---------------Join candidate peer0 to the channel—-------------"
+echo "—---------------Join voterRegistrationAuthority peer0 to the channel—-------------"
 
 peer channel join -b ${PWD}/channel-artifacts/$CHANNEL_NAME.block
 sleep 1
 peer channel list
 
-echo "—-------------candidate anchor peer update—-----------"
+
+
+
+echo "—-------------voterRegistrationAuthority anchor peer update—-----------"
 
 
 peer channel fetch config ${PWD}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com -c $CHANNEL_NAME --tls --cafile $ORDERER_CA
@@ -140,7 +143,7 @@ jq '.data.data[0].payload.data.config' config_block.json > config.json
 
 cp config.json config_copy.json
 
-jq '.channel_group.groups.Application.groups.candidateMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.candidate.voting.com","port": 8051}]},"version": "0"}}' config_copy.json > modified_config.json
+jq '.channel_group.groups.Application.groups.voterRegistrationAuthorityMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.voterRegistrationAuthority.voting.com","port": 8051}]},"version": "0"}}' config_copy.json > modified_config.json
 
 configtxlator proto_encode --input config.json --type common.Config --output config.pb
 configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
@@ -156,20 +159,32 @@ peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c 
 peer channel getinfo -c $CHANNEL_NAME
 sleep 1
 
+echo "—---------------install chaincode in voterRegistrationAuthority peer—-------------"
+
+peer lifecycle chaincode install vote-contract.tar.gz
+sleep 3
+
+peer lifecycle chaincode queryinstalled
+
+echo "—---------------Approve chaincode in votingBooth peer—-------------"
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name vote-contract --version 1.0 --collections-config ../Chaincode/Vote-Contract/collection-voting.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
 
 
-export CORE_PEER_LOCALMSPID=votersMSP 
+
+export CORE_PEER_LOCALMSPID=votingBoothMSP 
 export CORE_PEER_ADDRESS=localhost:9051 
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/voters.voting.com/peers/peer0.voters.voting.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/voters.voting.com/users/Admin@voters.voting.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/votingBooth.voting.com/peers/peer0.votingBooth.voting.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/votingBooth.voting.com/users/Admin@votingBooth.voting.com/msp
 
-echo "—---------------Join voters peer0 to the channel—-------------"
+echo "—---------------Join votingBooth peer0 to the channel—-------------"
 
 peer channel join -b ${PWD}/channel-artifacts/$CHANNEL_NAME.block
 sleep 1
 peer channel list
 
-echo "—-------------voters anchor peer update—-----------"
+echo "—-------------votingBooth anchor peer update—-----------"
 
 # peer channel join -b ${PWD}/channel-artifacts/$CHANNEL_NAME.block --tls --cafile $ORDERER_CA
 
@@ -183,7 +198,7 @@ jq '.data.data[0].payload.data.config' config_block.json > config.json
 
 cp config.json config_copy.json
 
-jq '.channel_group.groups.Application.groups.votersMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.voters.voting.com","port": 9051}]},"version": "0"}}' config_copy.json > modified_config.json
+jq '.channel_group.groups.Application.groups.votingBoothMSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.votingBooth.voting.com","port": 9051}]},"version": "0"}}' config_copy.json > modified_config.json
 
 configtxlator proto_encode --input config.json --type common.Config --output config.pb
 configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
@@ -198,12 +213,24 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.voting.com --tls --cafile $ORDERER_CA
 sleep 2
 
-export CORE_PEER_LOCALMSPID=votersMSP 
-export CORE_PEER_ADDRESS=localhost:9053 
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/voters.voting.com/peers/peer1.voters.voting.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/voters.voting.com/users/Admin@voters.voting.com/msp
+echo "—---------------install chaincode in votingBooth peer—-------------"
 
-echo "—---------------Join voters peer1 to the channel—-------------"
+peer lifecycle chaincode install vote-contract.tar.gz
+sleep 3
+
+peer lifecycle chaincode queryinstalled
+
+echo "—---------------Approve chaincode in votingBooth peer—-------------"
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name vote-contract --version 1.0 --collections-config ../Chaincode/Vote-Contract/collection-voting.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
+
+export CORE_PEER_LOCALMSPID=votingBoothMSP 
+export CORE_PEER_ADDRESS=localhost:9053 
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/votingBooth.voting.com/peers/peer1.votingBooth.voting.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/votingBooth.voting.com/users/Admin@votingBooth.voting.com/msp
+
+echo "—---------------Join votingBooth peer1 to the channel—-------------"
 
 echo ${FABRIC_CFG_PATH}
 sleep 2
@@ -213,17 +240,7 @@ sleep 3
 echo "-----channel List----"
 peer channel list
 
-# echo "—---------------install chaincode in voters peer—-------------"
 
-# peer lifecycle chaincode install basic.tar.gz
-# sleep 3
-
-# peer lifecycle chaincode queryinstalled
-
-# echo "—---------------Approve chaincode in voters peer—-------------"
-
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 1
 
 
 export CORE_PEER_LOCALMSPID=auditorMSP 
@@ -265,27 +282,27 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.voting.com --tls --cafile $ORDERER_CA
 sleep 1
 
-# echo "—---------------install chaincode in auditor peer—-------------"
+echo "—---------------install chaincode in auditor peer—-------------"
 
-# peer lifecycle chaincode install basic.tar.gz
-# sleep 3
+peer lifecycle chaincode install vote-contract.tar.gz
+sleep 3
 
-# peer lifecycle chaincode queryinstalled
+peer lifecycle chaincode queryinstalled
 
-# echo "—---------------Approve chaincode in auditor peer—-------------"
+echo "—---------------Approve chaincode in auditor peer—-------------"
 
-# peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
-# sleep 1
-
-
-# echo "—---------------Commit chaincode in auditor peer—-------------"
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name vote-contract --version 1.0 --collections-config ../Chaincode/Vote-Contract/collection-voting.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+sleep 1
 
 
-# peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name basic --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
+echo "—---------------Commit chaincode in auditor peer—-------------"
 
-# peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name basic --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $commissioner_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $voters_PEER_TLSROOTCERT
-# sleep 1
 
-# peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name basic --cafile $ORDERER_CA
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name vote-contract --version 1.0 --sequence 1 --collections-config ../Chaincode/Vote-Contract/collection-voting.json  --tls --cafile $ORDERER_CA --output json
+
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.voting.com --channelID $CHANNEL_NAME --name vote-contract --version 1.0 --sequence 1 --collections-config ../Chaincode/Vote-Contract/collection-voting.json  --tls --cafile $ORDERER_CA --peerAddresses localhost:7051 --tlsRootCertFiles $commissioner_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $votingBooth_PEER_TLSROOTCERT --peerAddresses localhost:8051 --tlsRootCertFiles $voterRegistrationAuthority_PEER_TLSROOTCERT --peerAddresses localhost:11051 --tlsRootCertFiles $auditor_PEER_TLSROOTCERT
+sleep 1
+
+peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name vote-contract --cafile $ORDERER_CA
 
 

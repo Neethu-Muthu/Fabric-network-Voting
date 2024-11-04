@@ -15,23 +15,23 @@ Organizations:
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
       - orderer.voting.com:7050
-  - &voters
-    Name: votersMSP
-    ID: votersMSP
-    MSPDir: ../organizations/peerOrganizations/voters.voting.com/msp
+  - &votingBooth
+    Name: votingBoothMSP
+    ID: votingBoothMSP
+    MSPDir: ../organizations/peerOrganizations/votingBooth.voting.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('votersMSP.admin', 'votersMSP.peer', 'votersMSP.client')"
+        Rule: "OR('votingBoothMSP.admin', 'votingBoothMSP.peer', 'votingBoothMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('votersMSP.admin', 'votersMSP.client')"
+        Rule: "OR('votingBoothMSP.admin', 'votingBoothMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('votersMSP.admin')"
+        Rule: "OR('votingBoothMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('votersMSP.peer')"
+        Rule: "OR('votingBoothMSP.peer')"
   - &commissioner
     Name: commissionerMSP
     ID: commissionerMSP
@@ -66,23 +66,23 @@ Organizations:
       Endorsement:
         Type: Signature
         Rule: "OR('auditorMSP.peer')"
-  - &candidate
-    Name: candidateMSP
-    ID: candidateMSP
-    MSPDir: ../organizations/peerOrganizations/candidate.voting.com/msp
+  - &voterRegistrationAuthority
+    Name: voterRegistrationAuthorityMSP
+    ID: voterRegistrationAuthorityMSP
+    MSPDir: ../organizations/peerOrganizations/voterRegistrationAuthority.voting.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('candidateMSP.admin', 'candidateMSP.peer', 'candidateMSP.client')"
+        Rule: "OR('voterRegistrationAuthorityMSP.admin', 'voterRegistrationAuthorityMSP.peer', 'voterRegistrationAuthorityMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('candidateMSP.admin', 'candidateMSP.client')"
+        Rule: "OR('voterRegistrationAuthorityMSP.admin', 'voterRegistrationAuthorityMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('candidateMSP.admin')"
+        Rule: "OR('voterRegistrationAuthorityMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('candidateMSP.peer')"
+        Rule: "OR('voterRegistrationAuthorityMSP.peer')"
 
 Capabilities:
   Channel: &ChannelCapabilities
@@ -168,8 +168,8 @@ Profiles:
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - *voters
+        - *votingBooth
         - *commissioner
         - *auditor
-        - *candidate
+        - *voterRegistrationAuthority
       Capabilities: *ApplicationCapabilities

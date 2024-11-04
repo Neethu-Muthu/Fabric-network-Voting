@@ -3,9 +3,9 @@ version: "3.7"
 volumes:
   orderer.voting.com:
   peer0.commissioner.voting.com:
-  peer0.candidate.voting.com:
-  peer0.voters.voting.com:
-  peer1.voters.voting.com:
+  peer0.voterRegistrationAuthority.voting.com:
+  peer0.votingBooth.voting.com:
+  peer1.votingBooth.voting.com:
   peer0.auditor.voting.com:
 
 networks:
@@ -128,8 +128,8 @@ services:
     networks:
       - test
 
-  peer0.candidate.voting.com:
-    container_name: peer0.candidate.voting.com
+  peer0.voterRegistrationAuthority.voting.com:
+    container_name: peer0.voterRegistrationAuthority.voting.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -143,16 +143,16 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.candidate.voting.com
-      - CORE_PEER_ADDRESS=peer0.candidate.voting.com:8051
+      - CORE_PEER_ID=peer0.voterRegistrationAuthority.voting.com
+      - CORE_PEER_ADDRESS=peer0.voterRegistrationAuthority.voting.com:8051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.candidate.voting.com:8052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.voterRegistrationAuthority.voting.com:8052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.candidate.voting.com:8051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.candidate.voting.com:8051
-      - CORE_PEER_LOCALMSPID=candidateMSP
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.voterRegistrationAuthority.voting.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.voterRegistrationAuthority.voting.com:8051
+      - CORE_PEER_LOCALMSPID=voterRegistrationAuthorityMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.candidate.voting.com:9447
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.voterRegistrationAuthority.voting.com:9447
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0candidate"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
@@ -162,8 +162,8 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../organizations/peerOrganizations/candidate.voting.com/peers/peer0.candidate.voting.com:/etc/hyperledger/fabric
-      - peer0.candidate.voting.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/voterRegistrationAuthority.voting.com/peers/peer0.voterRegistrationAuthority.voting.com:/etc/hyperledger/fabric
+      - peer0.voterRegistrationAuthority.voting.com:/var/hyperledger/production
     depends_on:
       - couchdb2
     working_dir: /root
@@ -187,8 +187,8 @@ services:
     networks:
       - test
 
-  peer0.voters.voting.com:
-    container_name: peer0.voters.voting.com
+  peer0.votingBooth.voting.com:
+    container_name: peer0.votingBooth.voting.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -203,16 +203,16 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.voters.voting.com
-      - CORE_PEER_ADDRESS=peer0.voters.voting.com:9051
+      - CORE_PEER_ID=peer0.votingBooth.voting.com
+      - CORE_PEER_ADDRESS=peer0.votingBooth.voting.com:9051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.voters.voting.com:9052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.votingBooth.voting.com:9052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.voters.voting.com:9051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.voters.voting.com:9051
-      - CORE_PEER_LOCALMSPID=votersMSP
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.votingBooth.voting.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.votingBooth.voting.com:9051
+      - CORE_PEER_LOCALMSPID=votingBoothMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.voters.voting.com:9445
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.votingBooth.voting.com:9445
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0voters"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
@@ -222,8 +222,8 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../organizations/peerOrganizations/voters.voting.com/peers/peer0.voters.voting.com:/etc/hyperledger/fabric
-      - peer0.voters.voting.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/votingBooth.voting.com/peers/peer0.votingBooth.voting.com:/etc/hyperledger/fabric
+      - peer0.votingBooth.voting.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
@@ -247,8 +247,8 @@ services:
     networks:
       - test
 
-  peer1.voters.voting.com: # Added peer1 for voters organization
-    container_name: peer1.voters.voting.com
+  peer1.votingBooth.voting.com: # Added peer1 for votingBooth organization
+    container_name: peer1.votingBooth.voting.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -262,15 +262,15 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer1.voters.voting.com
-      - CORE_PEER_ADDRESS=peer1.voters.voting.com:9053
+      - CORE_PEER_ID=peer1.votingBooth.voting.com
+      - CORE_PEER_ADDRESS=peer1.votingBooth.voting.com:9053
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9053
-      - CORE_PEER_CHAINCODEADDRESS=peer1.voters.voting.com:9054
+      - CORE_PEER_CHAINCODEADDRESS=peer1.votingBooth.voting.com:9054
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9054
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.voters.voting.com:9053
-      - CORE_PEER_LOCALMSPID=votersMSP
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.votingBooth.voting.com:9053
+      - CORE_PEER_LOCALMSPID=votingBoothMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer1.voters.voting.com:9445
+      - CORE_OPERATIONS_LISTENADDRESS=peer1.votingBooth.voting.com:9445
       - CORE_METRICS_PROVIDER=prometheus
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb4:5984
@@ -278,8 +278,8 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../organizations/peerOrganizations/voters.voting.com/peers/peer1.voters.voting.com:/etc/hyperledger/fabric
-      - peer1.voters.voting.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/votingBooth.voting.com/peers/peer1.votingBooth.voting.com:/etc/hyperledger/fabric
+      - peer1.votingBooth.voting.com:/var/hyperledger/production
     depends_on:
       - couchdb4
     ports:
@@ -369,7 +369,8 @@ services:
       - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
     depends_on:
       - peer0.commissioner.voting.com
-      - peer0.voters.voting.com
+      - peer0.votingBooth.voting.com
       - peer0.auditor.voting.com
+      - peer0.voterRegistrationAuthority.voting.com
     networks:
       - test
